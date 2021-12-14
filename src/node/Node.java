@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Node extends UnicastRemoteObject implements NodeServerInterface, NodeClientInterface {
-    
+
     int ownPort;
     String ownData;
     HashMap<String,File> ownDataListRaw;
@@ -306,7 +306,7 @@ public class Node extends UnicastRemoteObject implements NodeServerInterface, No
 
     @Override
     public void notifyStartClient() throws RemoteException {
-
+        System.out.println("- Client connected to own server");
     }
 
     @Override
