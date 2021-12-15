@@ -177,19 +177,16 @@ public class Node extends UnicastRemoteObject implements NodeServerInterface, No
                 f.keywords = i22x[2].split(",");
                 ownDataList.set(ownDataList.indexOf(f),f);
 
-                ///falte modificar el fixer fisic amb el hash (com a molt cambiar el nom)
-                // de la llista ownDataListRaw i del fixer de la carpeta del pc !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!FALTE TESTEJAR
                 String newPath= ownDataListRaw.get(f.hash).getPath();
                 int size=ownDataListRaw.get(f.hash).getName().length()-1;
                 newPath.substring(0, newPath.length() - size);
                 File fnew = new File(newPath);
                 ownDataListRaw.get(f.hash).renameTo(fnew);
-                ///
             }
         }
     }
 
-    private void delete() throws IOException ,RemoteException  {
+    private boolean delete() throws IOException ,RemoteException  {
         System.out.println("Wich file to fill? ");
         for (FileNode f :ownDataList) {
             System.out.println(f.title+"\n");
@@ -202,11 +199,17 @@ public class Node extends UnicastRemoteObject implements NodeServerInterface, No
         String[] i22 = i2.split(",");
         for (FileNode f :ownDataList) {
             if(f.title.equals(i22[0])){
-                ownDataList.remove(f);
-                ownDataListRaw.get(f.hash).delete();
-                ownDataListRaw.remove(f.hash);
+                for (File fi:ownDataListRaw.values()) {
+                    ownDataList.remove(f);
+                    if(fi.getName().equals(f.title) & !ownDataList.contains(f.hash)){
+                        fi.delete();
+                        ownDataListRaw.remove(fi);
+                        return true;
+                    }
+                }
             }
         }
+        return false;
 
     }
 
@@ -221,18 +224,14 @@ public class Node extends UnicastRemoteObject implements NodeServerInterface, No
             String number = reader.readLine();
             byte[] resultFile = searchAllNodesDownload( res.get( Integer.parseInt(number)-1 ) ,null); // E:\RMI_PRACTICA\DownloadsRMI
 
-
-
-            //byte[] fileContent = Files.readAllBytes(resultFile.toPath());
             System.out.println("Introduce the path of the dowload");
             String path = reader.readLine();
-            //new File(path).mkdir();
+
             String finalPath=path + '\\' +res.get( Integer.parseInt(number)-1 ).title;
 
             File fitxer = new File(finalPath);
             try (FileOutputStream fos = new FileOutputStream(finalPath)) {
                 fos.write(resultFile);
-                //fos.close(); There is no more need for this line since you had created the instance of "fos" inside the try. And this will automatically close the OutputStream
             }
         }else{
             System.out.println("Not fount item");
@@ -403,16 +402,6 @@ public class Node extends UnicastRemoteObject implements NodeServerInterface, No
         }
     }
 
-    // E:\RMI_PRACTICA\CompartidaProj1,1000
-    // E:\RMI_PRACTICA\CompartidaProj2,1001
-    // 192.168.0.23,1000
-    // 192.168.0.30,1000
-    // ECRPListCrypt.pdf
-    // E:\RMI_PRACTICA\DownloadsRMI
-    // E:\RMI_PRACTICA\CompartidaProj3,1002
-    // 192.168.0.23,1001
-    // E:\RMI_PRACTICA\CompartidaProj4,1003
-    // 192.168.0.23,1002
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException, RemoteException  {
         Node node=new Node();
         System.out.println("Set:  'the initial data file', 'own Port'");
